@@ -9,6 +9,17 @@ typedef struct {
   size_t args_len;
 } command_t;
 
+void dump_command_t(command_t *command) {
+  printf("command_t { file: \"%s\", args: [", command->file);
+  for (size_t i = 0; i < command->args_len; i++) {
+    if (i != 0)
+      printf(", ");
+
+    printf("\"%s\"", command->args[i]);
+  }
+  printf("], args_len: %zu}\n", command->args_len);
+}
+
 command_t *parse_command(char *command_str) {
   int command_len = strlen(command_str);
   command_str[command_len - 1] = ' ';
