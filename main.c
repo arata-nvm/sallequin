@@ -42,7 +42,16 @@ command_t *parse_command(char *command_str) {
   return command;
 }
 
-void exec_command(command_t *command) {
+void exec_builtin_cd(command_t *command) {
+  if (command->args_len != 1)
+    return;
+
+  if (chdir(command->args[0]) == -1) {
+    perror("chdir");
+  }
+}
+
+void exec_external_command(command_t *command) {
   pid_t pid = fork();
   if (pid == -1) {
     perror("fork");
@@ -63,6 +72,14 @@ void exec_command(command_t *command) {
     }
   } else {
     waitpid(pid, NULL, 0);
+  }
+}
+
+void exec_command(command_t *command) {
+  if (!strcmp(command->file, "cd")) {
+    exec_builtin_cd(command);
+  } else {
+    exec_external_command(command);
   }
 }
 
