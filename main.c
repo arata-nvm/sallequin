@@ -20,6 +20,12 @@ void dump_command_t(command_t *command) {
   printf("], args_len: %zu}\n", command->args_len);
 }
 
+void print_prompt() {
+  char *cwd = malloc(sizeof(char) * 256);
+  getcwd(cwd, 256);
+  printf("%s$ ", cwd);
+}
+
 command_t *parse_command(char *command_str) {
   int command_len = strlen(command_str);
   command_str[command_len - 1] = ' ';
@@ -87,7 +93,7 @@ int main() {
   char command_buf[256];
 
   for (;;) {
-    printf("$ ");
+    print_prompt();
     if (!fgets(command_buf, 256, stdin)) {
       exit(0);
     }
