@@ -22,6 +22,8 @@ void interactive_shell() {
     }
 
     command_t *command = parse_command(command_buf);
+    if (!command)
+      continue;
     exec_command(command);
     free(command->args);
     free(command);
