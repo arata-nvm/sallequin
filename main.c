@@ -28,15 +28,14 @@ command_t *parse_command(char *command_str) {
   char *file = strtok(command_str, " ");
 
   int i = 0;
-  char *p = file;
+  char *p = strtok(NULL, " ");
   while (p) {
+    args[i++] = p;
     p = strtok(NULL, " ");
-    args[i] = p;
-    i++;
   }
 
   command_t *command = malloc(sizeof(command_t));
-  command->file = command_str;
+  command->file = file;
   command->args = args;
   command->args_len = i;
 
