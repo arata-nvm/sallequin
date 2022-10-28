@@ -1,7 +1,6 @@
 #include <tokenizer.h>
 
 #include <ctype.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,18 +25,18 @@ char *next_token(char *s, token_t *out_token) {
 
   int len;
   switch (*s) {
-  case '\0':
-    out_token->type = TOKEN_EOF;
-    out_token->literal = "\0";
-    return s;
-  case '\n':
-    out_token->type = TOKEN_NEWLINE;
-    out_token->literal = "\n";
-    break;
-  default:
-    len = consume_word(s, out_token);
-    s += len;
-    return s;
+    case '\0':
+      out_token->type = TOKEN_EOF;
+      out_token->literal = "\0";
+      return s;
+    case '\n':
+      out_token->type = TOKEN_NEWLINE;
+      out_token->literal = "\n";
+      break;
+    default:
+      len = consume_word(s, out_token);
+      s += len;
+      return s;
   }
 
   s++;

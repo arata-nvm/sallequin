@@ -1,14 +1,10 @@
 #include <parser.h>
 #include <tokenizer.h>
 
-#include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 token_t *parse_command(token_t *cur, command_t *out_command) {
-  if (cur->type != TOKEN_WORD)
-    return NULL;
+  if (cur->type != TOKEN_WORD) return NULL;
   char *file = cur->literal;
 
   char **args = malloc(sizeof(char *) * 256);
