@@ -1,13 +1,34 @@
 #include <tokenizer.h>
 
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+
+bool is_word_char(char c) {
+  return (
+      c != '|' &&
+      c != '&' &&
+      c != ';' &&
+      c != '<' &&
+      c != '>' &&
+      c != '(' &&
+      c != ')' &&
+      c != '$' &&
+      c != '`' &&
+      c != '\\' &&
+      c != '"' &&
+      c != '\'' &&
+      c != ' ' &&
+      c != '\t' &&
+      c != '\n'
+  );
+}
 
 int consume_word(char *s, token_t *out_token) {
   char *literal_start = s;
   int literal_len = 0;
-  while (!isspace(*s)) {
+  while (is_word_char(*s)) {
     literal_len++;
     s++;
   }
