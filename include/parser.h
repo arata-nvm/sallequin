@@ -8,4 +8,4 @@ typedef struct {
   size_t args_len;
 } command_t;
 
-command_t *parse_command(char *command_str);
+command_t *parse(char *s);

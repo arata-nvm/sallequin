@@ -6,9 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-command_t *parse_command(char *command_str) {
-  token_t *cur = tokenize(command_str);
-
+token_t *parse_command(token_t *cur, command_t *out_command) {
   if (cur->type != TOKEN_WORD)
     return NULL;
   char *file = cur->literal;
@@ -24,9 +22,18 @@ command_t *parse_command(char *command_str) {
     cur = cur->next;
   }
 
+  out_command->file = file;
+  out_command->args = args;
+  out_command->args_len = args_len;
+  return cur;
+}
+
+command_t *parse(char *s) {
+  token_t *token = tokenize(s);
+
   command_t *command = malloc(sizeof(command_t));
-  command->file = file;
-  command->args = args;
-  command->args_len = args_len;
+  if (!parse_command(token, command)) {
+    return NULL;
+  }
   return command;
 }

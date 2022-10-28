@@ -21,7 +21,7 @@ void interactive_shell() {
       exit(0);
     }
 
-    command_t *command = parse_command(command_buf);
+    command_t *command = parse(command_buf);
     if (!command)
       continue;
     exec_command(command);
