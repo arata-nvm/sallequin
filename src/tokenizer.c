@@ -2,6 +2,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 char *next_token(char *s, token_t *out_token) {
@@ -33,4 +34,19 @@ char *next_token(char *s, token_t *out_token) {
   out_token->literal = literal;
 
   return s;
+}
+
+token_t *tokenize(char *s) {
+  token_t *first_token = malloc(sizeof(token_t));
+  token_t *cur = first_token;
+
+  s = next_token(s, cur);
+  while (cur->type != TOKEN_EOF) {
+    cur->next = malloc(sizeof(token_t));
+    cur = cur->next;
+
+    s = next_token(s, cur);
+  }
+
+  return first_token;
 }

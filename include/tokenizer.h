@@ -9,8 +9,8 @@ typedef enum {
 typedef struct {
   tokentype_t type;
   char *literal;
+
+  struct token_t *next;
 } token_t;
 
-
-
-char *next_token(char *s, token_t *out_token);
+token_t *tokenize(char *s);
