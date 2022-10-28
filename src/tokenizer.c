@@ -54,6 +54,10 @@ char *next_token(char *s, token_t *out_token) {
       out_token->type = TOKEN_NEWLINE;
       out_token->literal = "\n";
       break;
+    case ';':
+      out_token->type = TOKEN_SEMI;
+      out_token->literal = ";";
+      break;
     default:
       len = consume_word(s, out_token);
       s += len;

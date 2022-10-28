@@ -38,3 +38,11 @@ void exec_command(command_t *command) {
     exec_external_command(command);
   }
 }
+
+void exec_command_list(command_list_t *command_list) {
+  command_list_t *cur = command_list;
+  while (cur) {
+    exec_command(cur->command);
+    cur = cur->next;
+  }
+}

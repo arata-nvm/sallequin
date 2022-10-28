@@ -3,6 +3,7 @@
 typedef enum {
   TOKEN_WORD,
   TOKEN_NEWLINE,
+  TOKEN_SEMI,
   TOKEN_EOF,
 } tokentype_t;
 

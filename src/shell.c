@@ -21,11 +21,9 @@ void interactive_shell() {
       exit(0);
     }
 
-    command_t *command = parse(command_buf);
-    if (!command)
+    command_list_t *command_list = parse(command_buf);
+    if (!command_list)
       continue;
-    exec_command(command);
-    free(command->args);
-    free(command);
+    exec_command_list(command_list);
   }
 }

@@ -24,12 +24,34 @@ token_t *parse_command(token_t *cur, command_t *out_command) {
   return cur;
 }
 
-command_t *parse(char *s) {
+token_t *parse_command_list(token_t *cur, command_list_t *out_command_list) {
+  out_command_list->command = calloc(1, sizeof(command_t));
+  cur = parse_command(cur, out_command_list->command);
+  if (!cur) return NULL;
+
+  for (;;) {
+    if (cur->type != TOKEN_SEMI) break;
+    cur = cur->next;
+
+    if (cur->type != TOKEN_WORD) break;
+
+    out_command_list->next = calloc(1, sizeof(command_list_t));
+    out_command_list = out_command_list->next;
+
+    out_command_list->command = calloc(1, sizeof(command_t));
+    cur = parse_command(cur, out_command_list->command);
+    if (!cur) return NULL;
+  }
+
+  return cur;
+}
+
+command_list_t *parse(char *s) {
   token_t *token = tokenize(s);
 
-  command_t *command = calloc(1, sizeof(command_t));
-  if (!parse_command(token, command)) {
+  command_list_t *command_list = calloc(1, sizeof(command_list_t));
+  if (!parse_command_list(token, command_list)) {
     return NULL;
   }
-  return command;
+  return command_list;
 }

@@ -8,4 +8,10 @@ typedef struct {
   size_t args_len;
 } command_t;
 
-command_t *parse(char *s);
+typedef struct {
+  command_t *command;
+
+  struct command_list_t *next;
+} command_list_t;
+
+command_list_t *parse(char *s);
