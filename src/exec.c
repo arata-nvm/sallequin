@@ -26,6 +26,8 @@ int exec_external_command(command_t *command) {
       perror("execvp");
       exit(1);
     }
+
+    __builtin_unreachable();
   } else {
     int stat;
     waitpid(pid, &stat, 0);
@@ -36,6 +38,8 @@ int exec_external_command(command_t *command) {
 int exec_command(command_t *command) {
   if (!strcmp(command->file, "cd")) {
     return exec_builtin_cd(command);
+  } else if (!strcmp(command->file, "exec")) {
+    return exec_builtin_exec(command);
   } else {
     return exec_external_command(command);
   }
