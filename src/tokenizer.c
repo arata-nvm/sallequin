@@ -45,12 +45,12 @@ char *next_token(char *s, token_t *out_token) {
 }
 
 token_t *tokenize(char *s) {
-  token_t *first_token = malloc(sizeof(token_t));
+  token_t *first_token = calloc(1, sizeof(token_t));
   token_t *cur = first_token;
 
   s = next_token(s, cur);
   while (cur->type != TOKEN_EOF) {
-    cur->next = malloc(sizeof(token_t));
+    cur->next = calloc(1, sizeof(token_t));
     cur = cur->next;
 
     s = next_token(s, cur);

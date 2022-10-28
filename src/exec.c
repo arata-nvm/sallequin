@@ -15,7 +15,7 @@ void exec_external_command(command_t *command) {
 
   if (pid == 0) {
     size_t argv_len = command->args_len + 2;
-    char **argv = malloc(sizeof(char *) * argv_len);
+    char **argv = calloc(argv_len, sizeof(char *));
     argv[0] = command->file;
     argv[argv_len - 1] = NULL;
     for (size_t i = 0; i < command->args_len; i++) {

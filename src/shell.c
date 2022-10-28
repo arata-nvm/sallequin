@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 void print_prompt() {
-  char *cwd = malloc(sizeof(char) * 256);
+  char *cwd = calloc(256, sizeof(char));
   getcwd(cwd, 256);
   printf("%s$ ", cwd);
 }
