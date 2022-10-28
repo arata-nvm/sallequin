@@ -30,10 +30,27 @@ token_t *parse_command_list(token_t *cur, command_list_t *out_command_list) {
   if (!cur) return NULL;
 
   for (;;) {
-    if (cur->type != TOKEN_SEMI) break;
+    switch (cur->type) {
+      case TOKEN_SEMI:
+        out_command_list->type = LIST_SEQUENTIAL;
+        break;
+      case TOKEN_AND:
+        out_command_list->type = LIST_AND;
+        break;
+      case TOKEN_OR:
+        out_command_list->type = LIST_OR;
+        break;
+      default:
+        return cur;
+    }
+    int token_type = cur->type;
     cur = cur->next;
 
-    if (cur->type != TOKEN_WORD) break;
+    if (cur->type != TOKEN_WORD) {
+      if (token_type == TOKEN_SEMI) break;
+
+      return NULL;
+    }
 
     out_command_list->next = calloc(1, sizeof(command_list_t));
     out_command_list = out_command_list->next;

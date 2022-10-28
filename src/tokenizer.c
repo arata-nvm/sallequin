@@ -1,6 +1,5 @@
 #include <tokenizer.h>
 
-#include <ctype.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,6 +56,30 @@ char *next_token(char *s, token_t *out_token) {
     case ';':
       out_token->type = TOKEN_SEMI;
       out_token->literal = ";";
+      break;
+    case '&':
+      if (*(s + 1) == '&') {
+        s += 2;
+        out_token->type = TOKEN_AND;
+        out_token->literal = "&&";
+        return s;
+      }
+
+      // TODO
+      out_token->type = TOKEN_WORD;
+      out_token->literal = "&";
+      break;
+    case '|':
+      if (*(s + 1) == '|') {
+        s += 2;
+        out_token->type = TOKEN_OR;
+        out_token->literal = "||";
+        return s;
+      }
+
+      // TODO
+      out_token->type = TOKEN_WORD;
+      out_token->literal = "|";
       break;
     default:
       len = consume_word(s, out_token);

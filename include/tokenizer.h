@@ -4,6 +4,8 @@ typedef enum {
   TOKEN_WORD,
   TOKEN_NEWLINE,
   TOKEN_SEMI,
+  TOKEN_AND,
+  TOKEN_OR,
   TOKEN_EOF,
 } tokentype_t;
 

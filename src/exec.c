@@ -43,10 +43,22 @@ int exec_command(command_t *command) {
 
 int exec_command_list(command_list_t *command_list) {
   int last_exit_code = 0;
-  
+
   command_list_t *cur = command_list;
   while (cur) {
     last_exit_code = exec_command(cur->command);
+
+    switch (cur->type) {
+      case LIST_SEQUENTIAL:
+        break;
+      case LIST_AND:
+        if (last_exit_code != 0) return last_exit_code;
+        break;
+      case LIST_OR:
+        if (last_exit_code == 0) return last_exit_code;
+        break;
+    }
+
     cur = cur->next;
   }
 
