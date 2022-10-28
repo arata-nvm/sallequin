@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-void exec_external_command(command_t *command) {
+int exec_external_command(command_t *command) {
   pid_t pid = fork();
   if (pid == -1) {
     perror("fork");
@@ -27,22 +27,28 @@ void exec_external_command(command_t *command) {
       exit(1);
     }
   } else {
-    waitpid(pid, NULL, 0);
+    int stat;
+    waitpid(pid, &stat, 0);
+    return WEXITSTATUS(stat);
   }
 }
 
-void exec_command(command_t *command) {
+int exec_command(command_t *command) {
   if (!strcmp(command->file, "cd")) {
-    exec_builtin_cd(command);
+    return exec_builtin_cd(command);
   } else {
-    exec_external_command(command);
+    return exec_external_command(command);
   }
 }
 
-void exec_command_list(command_list_t *command_list) {
+int exec_command_list(command_list_t *command_list) {
+  int last_exit_code = 0;
+  
   command_list_t *cur = command_list;
   while (cur) {
-    exec_command(cur->command);
+    last_exit_code = exec_command(cur->command);
     cur = cur->next;
   }
+
+  return last_exit_code;
 }
