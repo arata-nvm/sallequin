@@ -39,6 +39,11 @@ int consume_word(char *s, token_t *out_token) {
   return literal_len;
 }
 
+void set_token(token_t *token, tokentype_t type, char *literal) {
+  token->type = type;
+  token->literal = literal;
+}
+
 char *next_token(char *s, token_t *out_token) {
   while (*s == ' ')
     s++;
@@ -46,40 +51,33 @@ char *next_token(char *s, token_t *out_token) {
   int len;
   switch (*s) {
     case '\0':
-      out_token->type = TOKEN_EOF;
-      out_token->literal = "\0";
+      set_token(out_token, TOKEN_EOF, "\0");
       return s;
     case '\n':
-      out_token->type = TOKEN_NEWLINE;
-      out_token->literal = "\n";
+      set_token(out_token, TOKEN_NEWLINE, "\n");
       break;
     case ';':
-      out_token->type = TOKEN_SEMI;
-      out_token->literal = ";";
+      set_token(out_token, TOKEN_SEMI, ";");
       break;
     case '&':
       if (*(s + 1) == '&') {
         s += 2;
-        out_token->type = TOKEN_AND;
-        out_token->literal = "&&";
+        set_token(out_token, TOKEN_AND, "&&");
         return s;
       }
 
       // TODO
-      out_token->type = TOKEN_WORD;
-      out_token->literal = "&";
+      set_token(out_token, TOKEN_WORD, "&");
       break;
     case '|':
       if (*(s + 1) == '|') {
         s += 2;
-        out_token->type = TOKEN_OR;
-        out_token->literal = "||";
+        set_token(out_token, TOKEN_OR, "||");
         return s;
       }
 
       // TODO
-      out_token->type = TOKEN_WORD;
-      out_token->literal = "|";
+      set_token(out_token, TOKEN_WORD, "|");
       break;
     default:
       len = consume_word(s, out_token);
