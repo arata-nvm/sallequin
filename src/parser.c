@@ -109,7 +109,7 @@ token_t *parse_command(token_t *cur, command_t *out_command) {
   }
 }
 
-command_t *parse(char *s) {
+complete_command_t *parse(char *s) {
   token_t *token = tokenize(s);
 
   command_t *command = calloc(1, sizeof(command_t));

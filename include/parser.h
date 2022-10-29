@@ -9,7 +9,7 @@ typedef struct {
   char *file;
   char **args;
   size_t args_len;
-  
+
   bool negate_exit_code;
 } simple_command_t;
 
@@ -46,4 +46,6 @@ typedef struct command_t {
   } value;
 } command_t;
 
-command_t *parse(char *s);
+typedef command_t complete_command_t;
+
+complete_command_t *parse(char *s);

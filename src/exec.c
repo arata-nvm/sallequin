@@ -108,3 +108,7 @@ int exec_command(command_t *command) {
       return exec_subshell_command(command->value.subshell);
   }
 }
+
+int exec(complete_command_t *command) {
+  return exec_command(command);
+}
