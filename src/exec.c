@@ -40,6 +40,8 @@ int exec_simple_command(simple_command_t *simple_command) {
     return exec_builtin_cd(simple_command);
   } else if (!strcmp(simple_command->file, "exec")) {
     return exec_builtin_exec(simple_command);
+  } else if (!strcmp(simple_command->file, "exit")) {
+    exec_builtin_exit(simple_command);
   } else {
     return exec_external_command(simple_command);
   }

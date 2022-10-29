@@ -34,3 +34,16 @@ int exec_builtin_exec(simple_command_t *command) {
 
   __builtin_unreachable();
 }
+
+void exec_builtin_exit(simple_command_t *command) {
+  if (command->args_len == 1) {
+    char *endptr;
+    int exit_code = (int) strtol(command->args[0], &endptr, 10);
+    if (endptr == command->args[0]) {
+      fprintf(stderr, "exit: invalid integer");
+      exit(1);
+    }
+    exit(exit_code);
+  }
+  exit(0);
+}
