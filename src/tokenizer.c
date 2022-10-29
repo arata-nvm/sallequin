@@ -85,6 +85,9 @@ char *next_token(char *s, token_t *out_token) {
     case ')':
       set_token(out_token, TOKEN_PAREN_CLOSE, ")");
       break;
+    case '!':
+      set_token(out_token, TOKEN_BANG, "!");
+      break;
     default:
       len = consume_word(s, out_token);
       s += len;

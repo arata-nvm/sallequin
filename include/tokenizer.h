@@ -8,6 +8,7 @@ typedef enum {
   TOKEN_OR,
   TOKEN_PAREN_OPEN,
   TOKEN_PAREN_CLOSE,
+  TOKEN_BANG,
   TOKEN_EOF,
 } tokentype_t;
 

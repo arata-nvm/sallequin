@@ -6,6 +6,11 @@
 token_t *parse_command(token_t *cur, command_t *command);
 
 token_t *parse_simple_command(token_t *cur, simple_command_t *out_simple) {
+  if (cur->type == TOKEN_BANG) {
+    out_simple->negate_exit_code = true;
+    cur = cur->next;
+  }
+
   if (cur->type != TOKEN_WORD) return NULL;
   char *file = cur->literal;
 

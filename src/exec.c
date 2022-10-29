@@ -36,15 +36,26 @@ int exec_external_command(simple_command_t *command) {
 }
 
 int exec_simple_command(simple_command_t *simple_command) {
+  int exit_code;
   if (!strcmp(simple_command->file, "cd")) {
-    return exec_builtin_cd(simple_command);
+    exit_code = exec_builtin_cd(simple_command);
   } else if (!strcmp(simple_command->file, "exec")) {
-    return exec_builtin_exec(simple_command);
+    exit_code = exec_builtin_exec(simple_command);
   } else if (!strcmp(simple_command->file, "exit")) {
     exec_builtin_exit(simple_command);
   } else {
-    return exec_external_command(simple_command);
+    exit_code = exec_external_command(simple_command);
   }
+
+  if (simple_command->negate_exit_code) {
+    if (exit_code == 0) {
+      exit_code = 1;
+    } else {
+      exit_code = 0;
+    }
+  }
+
+  return exit_code;
 }
 
 int exec_list_command(list_command_t *list_command) {

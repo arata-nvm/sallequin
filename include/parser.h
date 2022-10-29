@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stddef.h>
+#include <stdbool.h>
 
 struct command_t;
 
@@ -8,6 +9,8 @@ typedef struct {
   char *file;
   char **args;
   size_t args_len;
+  
+  bool negate_exit_code;
 } simple_command_t;
 
 typedef enum {
