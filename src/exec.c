@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-int exec_external_command(command_t *command) {
+int exec_external_command(simple_command_t *command) {
   pid_t pid = fork();
   if (pid == -1) {
     perror("fork");
@@ -35,13 +35,13 @@ int exec_external_command(command_t *command) {
   }
 }
 
-int exec_command(command_t *command) {
-  if (!strcmp(command->file, "cd")) {
-    return exec_builtin_cd(command);
-  } else if (!strcmp(command->file, "exec")) {
-    return exec_builtin_exec(command);
+int exec_simple_command(simple_command_t *simple_command) {
+  if (!strcmp(simple_command->file, "cd")) {
+    return exec_builtin_cd(simple_command);
+  } else if (!strcmp(simple_command->file, "exec")) {
+    return exec_builtin_exec(simple_command);
   } else {
-    return exec_external_command(command);
+    return exec_external_command(simple_command);
   }
 }
 
@@ -50,7 +50,7 @@ int exec_command_list(command_list_t *command_list) {
 
   command_list_t *cur = command_list;
   while (cur) {
-    last_exit_code = exec_command(cur->command);
+    last_exit_code = exec_simple_command(cur->command->value.simple);
 
     switch (cur->type) {
       case LIST_SEQUENTIAL:
@@ -67,4 +67,13 @@ int exec_command_list(command_list_t *command_list) {
   }
 
   return last_exit_code;
+}
+
+int exec_command(command_t *command) {
+  switch (command->type) {
+    case COMMAND_SIMPLE:
+      return exec_simple_command(command->value.simple);
+    case COMMAND_LIST:
+      return exec_command_list(command->value.list);
+  }
 }

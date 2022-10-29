@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-token_t *parse_command(token_t *cur, command_t *out_command) {
+token_t *parse_simple_command(token_t *cur, simple_command_t *out_simple_command) {
   if (cur->type != TOKEN_WORD) return NULL;
   char *file = cur->literal;
 
@@ -18,15 +18,21 @@ token_t *parse_command(token_t *cur, command_t *out_command) {
     cur = cur->next;
   }
 
-  out_command->file = file;
-  out_command->args = args;
-  out_command->args_len = args_len;
+  out_simple_command->file = file;
+  out_simple_command->args = args;
+  out_simple_command->args_len = args_len;
   return cur;
+}
+
+token_t *parse_command_list_inner(token_t *cur, command_t *out_command) {
+  out_command->type = COMMAND_SIMPLE;
+  out_command->value.simple = calloc(1, sizeof(simple_command_t));
+  return parse_simple_command(cur, out_command->value.simple);
 }
 
 token_t *parse_command_list(token_t *cur, command_list_t *out_command_list) {
   out_command_list->command = calloc(1, sizeof(command_t));
-  cur = parse_command(cur, out_command_list->command);
+  cur = parse_command_list_inner(cur, out_command_list->command);
   if (!cur) return NULL;
 
   for (;;) {
@@ -55,20 +61,22 @@ token_t *parse_command_list(token_t *cur, command_list_t *out_command_list) {
     out_command_list->next = calloc(1, sizeof(command_list_t));
     out_command_list = out_command_list->next;
 
-    out_command_list->command = calloc(1, sizeof(command_t));
-    cur = parse_command(cur, out_command_list->command);
+    out_command_list->command = calloc(1, sizeof(simple_command_t));
+    cur = parse_command_list_inner(cur, out_command_list->command);
     if (!cur) return NULL;
   }
 
   return cur;
 }
 
-command_list_t *parse(char *s) {
+command_t *parse(char *s) {
   token_t *token = tokenize(s);
 
-  command_list_t *command_list = calloc(1, sizeof(command_list_t));
-  if (!parse_command_list(token, command_list)) {
+  command_t *command = calloc(1, sizeof(command_t));
+  command->type = COMMAND_LIST;
+  command->value.list = calloc(1, sizeof(command_list_t));
+  if (!parse_command_list(token, command->value.list)) {
     return NULL;
   }
-  return command_list;
+  return command;
 }

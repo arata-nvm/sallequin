@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int exec_builtin_cd(command_t *command) {
+int exec_builtin_cd(simple_command_t *command) {
   if (command->args_len != 1)
     return 1;
 
@@ -16,7 +16,7 @@ int exec_builtin_cd(command_t *command) {
   return 0;
 }
 
-int exec_builtin_exec(command_t *command) {
+int exec_builtin_exec(simple_command_t *command) {
   if (command->args_len == 0)
     return 1;
 
