@@ -23,9 +23,14 @@ typedef struct command_list_t {
   struct command_list_t *next;
 } command_list_t;
 
+typedef struct {
+  struct command_t *command;
+} subshell_command_t;
+
 typedef enum {
   COMMAND_SIMPLE,
   COMMAND_LIST,
+  COMMAND_SUBSHELL,
 } command_type_t;
 
 typedef struct command_t {
@@ -34,6 +39,7 @@ typedef struct command_t {
   union {
     simple_command_t *simple;
     command_list_t *list;
+    subshell_command_t *subshell;
   } value;
 } command_t;
 

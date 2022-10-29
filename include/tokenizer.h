@@ -6,6 +6,8 @@ typedef enum {
   TOKEN_SEMI,
   TOKEN_AND,
   TOKEN_OR,
+  TOKEN_PAREN_OPEN,
+  TOKEN_PAREN_CLOSE,
   TOKEN_EOF,
 } tokentype_t;
 

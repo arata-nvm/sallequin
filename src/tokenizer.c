@@ -79,6 +79,12 @@ char *next_token(char *s, token_t *out_token) {
       // TODO
       set_token(out_token, TOKEN_WORD, "|");
       break;
+    case '(':
+      set_token(out_token, TOKEN_PAREN_OPEN, "(");
+      break;
+    case ')':
+      set_token(out_token, TOKEN_PAREN_CLOSE, ")");
+      break;
     default:
       len = consume_word(s, out_token);
       s += len;

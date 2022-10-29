@@ -50,7 +50,7 @@ int exec_command_list(command_list_t *command_list) {
 
   command_list_t *cur = command_list;
   while (cur) {
-    last_exit_code = exec_simple_command(cur->command->value.simple);
+    last_exit_code = exec_command(cur->command);
 
     switch (cur->type) {
       case LIST_SEQUENTIAL:
@@ -69,11 +69,29 @@ int exec_command_list(command_list_t *command_list) {
   return last_exit_code;
 }
 
+int exec_subshell_command(subshell_command_t *subshell_command) {
+  pid_t pid = fork();
+  if (pid == -1) {
+    perror("fork");
+  }
+
+  if (pid == 0) {
+    exec_command(subshell_command->command);
+    exit(0);
+  } else {
+    int stat;
+    waitpid(pid, &stat, 0);
+    return WEXITSTATUS(stat);
+  }
+}
+
 int exec_command(command_t *command) {
   switch (command->type) {
     case COMMAND_SIMPLE:
       return exec_simple_command(command->value.simple);
     case COMMAND_LIST:
       return exec_command_list(command->value.list);
+    case COMMAND_SUBSHELL:
+      return exec_subshell_command(command->value.subshell);
   }
 }

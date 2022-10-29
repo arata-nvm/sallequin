@@ -24,10 +24,30 @@ token_t *parse_simple_command(token_t *cur, simple_command_t *out_simple_command
   return cur;
 }
 
+token_t *parse_subshell_command(token_t *cur, subshell_command_t *out_subshell) {
+  if (cur->type != TOKEN_PAREN_OPEN) return NULL;
+  cur = cur->next;
+
+  out_subshell->command = calloc(1, sizeof(command_t));
+  cur = parse_command(cur, out_subshell->command);
+
+  if (cur->type != TOKEN_PAREN_CLOSE) return NULL;
+  cur = cur->next;
+
+  return cur;
+}
+
 token_t *parse_command_list_inner(token_t *cur, command_t *out_command) {
-  out_command->type = COMMAND_SIMPLE;
-  out_command->value.simple = calloc(1, sizeof(simple_command_t));
-  return parse_simple_command(cur, out_command->value.simple);
+  switch (cur->type) {
+    case TOKEN_PAREN_OPEN:
+      out_command->type = COMMAND_SUBSHELL;
+      out_command->value.subshell = calloc(1, sizeof(subshell_command_t));
+      return parse_subshell_command(cur, out_command->value.subshell);
+    default:
+      out_command->type = COMMAND_SIMPLE;
+      out_command->value.simple = calloc(1, sizeof(simple_command_t));
+      return parse_simple_command(cur, out_command->value.simple);
+  }
 }
 
 token_t *parse_command_list(token_t *cur, command_list_t *out_command_list) {
@@ -67,6 +87,19 @@ token_t *parse_command_list(token_t *cur, command_list_t *out_command_list) {
   }
 
   return cur;
+}
+
+token_t *parse_command(token_t *cur, command_t *out_command) {
+  switch (cur->type) {
+    case TOKEN_PAREN_OPEN:
+      out_command->type = COMMAND_SUBSHELL;
+      out_command->value.subshell = calloc(1, sizeof(subshell_command_t));
+      return parse_subshell_command(cur, out_command->value.subshell);
+    default:
+      out_command->type = COMMAND_LIST;
+      out_command->value.list = calloc(1, sizeof(command_list_t));
+      return parse_command_list(cur, out_command->value.list);
+  }
 }
 
 command_t *parse(char *s) {
