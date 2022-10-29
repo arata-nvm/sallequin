@@ -22,8 +22,10 @@ void interactive_shell() {
     }
 
     command_t *command = parse(command_buf);
-    if (!command)
+    if (!command) {
+      fprintf(stderr, "parse error\n");
       continue;
+    }
     exec_command(command);
   }
 }
