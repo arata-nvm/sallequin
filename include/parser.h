@@ -14,7 +14,7 @@ typedef enum {
   LIST_OR,
 } command_list_type_t;
 
-typedef struct {
+typedef struct command_list_t {
   command_list_type_t type;
   command_t *command;
 

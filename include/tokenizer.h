@@ -9,7 +9,7 @@ typedef enum {
   TOKEN_EOF,
 } tokentype_t;
 
-typedef struct {
+typedef struct token_t {
   tokentype_t type;
   char *literal;
 
