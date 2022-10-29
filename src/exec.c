@@ -45,10 +45,10 @@ int exec_simple_command(simple_command_t *simple_command) {
   }
 }
 
-int exec_command_list(command_list_t *command_list) {
+int exec_list_command(list_command_t *list_command) {
   int last_exit_code = 0;
 
-  command_list_t *cur = command_list;
+  list_command_t *cur = list_command;
   while (cur) {
     last_exit_code = exec_command(cur->command);
 
@@ -90,7 +90,7 @@ int exec_command(command_t *command) {
     case COMMAND_SIMPLE:
       return exec_simple_command(command->value.simple);
     case COMMAND_LIST:
-      return exec_command_list(command->value.list);
+      return exec_list_command(command->value.list);
     case COMMAND_SUBSHELL:
       return exec_subshell_command(command->value.subshell);
   }

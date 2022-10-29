@@ -14,14 +14,14 @@ typedef enum {
   LIST_SEQUENTIAL,
   LIST_AND,
   LIST_OR,
-} command_list_type_t;
+} list_command_type_t;
 
-typedef struct command_list_t {
-  command_list_type_t type;
+typedef struct list_command_t {
+  list_command_type_t type;
   struct command_t *command;
 
-  struct command_list_t *next;
-} command_list_t;
+  struct list_command_t *next;
+} list_command_t;
 
 typedef struct {
   struct command_t *command;
@@ -38,7 +38,7 @@ typedef struct command_t {
 
   union {
     simple_command_t *simple;
-    command_list_t *list;
+    list_command_t *list;
     subshell_command_t *subshell;
   } value;
 } command_t;

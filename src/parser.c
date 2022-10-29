@@ -3,7 +3,9 @@
 
 #include <stdlib.h>
 
-token_t *parse_simple_command(token_t *cur, simple_command_t *out_simple_command) {
+token_t *parse_command(token_t *cur, command_t *command);
+
+token_t *parse_simple_command(token_t *cur, simple_command_t *out_simple) {
   if (cur->type != TOKEN_WORD) return NULL;
   char *file = cur->literal;
 
@@ -18,9 +20,9 @@ token_t *parse_simple_command(token_t *cur, simple_command_t *out_simple_command
     cur = cur->next;
   }
 
-  out_simple_command->file = file;
-  out_simple_command->args = args;
-  out_simple_command->args_len = args_len;
+  out_simple->file = file;
+  out_simple->args = args;
+  out_simple->args_len = args_len;
   return cur;
 }
 
@@ -37,7 +39,7 @@ token_t *parse_subshell_command(token_t *cur, subshell_command_t *out_subshell) 
   return cur;
 }
 
-token_t *parse_command_list_inner(token_t *cur, command_t *out_command) {
+token_t *parse_list_command_inner(token_t *cur, command_t *out_command) {
   switch (cur->type) {
     case TOKEN_PAREN_OPEN:
       out_command->type = COMMAND_SUBSHELL;
@@ -50,21 +52,21 @@ token_t *parse_command_list_inner(token_t *cur, command_t *out_command) {
   }
 }
 
-token_t *parse_command_list(token_t *cur, command_list_t *out_command_list) {
-  out_command_list->command = calloc(1, sizeof(command_t));
-  cur = parse_command_list_inner(cur, out_command_list->command);
+token_t *parse_list_command(token_t *cur, list_command_t *out_list) {
+  out_list->command = calloc(1, sizeof(command_t));
+  cur = parse_list_command_inner(cur, out_list->command);
   if (!cur) return NULL;
 
   for (;;) {
     switch (cur->type) {
       case TOKEN_SEMI:
-        out_command_list->type = LIST_SEQUENTIAL;
+        out_list->type = LIST_SEQUENTIAL;
         break;
       case TOKEN_AND:
-        out_command_list->type = LIST_AND;
+        out_list->type = LIST_AND;
         break;
       case TOKEN_OR:
-        out_command_list->type = LIST_OR;
+        out_list->type = LIST_OR;
         break;
       default:
         return cur;
@@ -78,11 +80,11 @@ token_t *parse_command_list(token_t *cur, command_list_t *out_command_list) {
       return NULL;
     }
 
-    out_command_list->next = calloc(1, sizeof(command_list_t));
-    out_command_list = out_command_list->next;
+    out_list->next = calloc(1, sizeof(list_command_t));
+    out_list = out_list->next;
 
-    out_command_list->command = calloc(1, sizeof(simple_command_t));
-    cur = parse_command_list_inner(cur, out_command_list->command);
+    out_list->command = calloc(1, sizeof(simple_command_t));
+    cur = parse_list_command_inner(cur, out_list->command);
     if (!cur) return NULL;
   }
 
@@ -97,8 +99,8 @@ token_t *parse_command(token_t *cur, command_t *out_command) {
       return parse_subshell_command(cur, out_command->value.subshell);
     default:
       out_command->type = COMMAND_LIST;
-      out_command->value.list = calloc(1, sizeof(command_list_t));
-      return parse_command_list(cur, out_command->value.list);
+      out_command->value.list = calloc(1, sizeof(list_command_t));
+      return parse_list_command(cur, out_command->value.list);
   }
 }
 
@@ -107,8 +109,8 @@ command_t *parse(char *s) {
 
   command_t *command = calloc(1, sizeof(command_t));
   command->type = COMMAND_LIST;
-  command->value.list = calloc(1, sizeof(command_list_t));
-  if (!parse_command_list(token, command->value.list)) {
+  command->value.list = calloc(1, sizeof(list_command_t));
+  if (!parse_list_command(token, command->value.list)) {
     return NULL;
   }
   return command;
