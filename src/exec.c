@@ -11,6 +11,7 @@ int exec_external_command(simple_command_t *command) {
   pid_t pid = fork();
   if (pid == -1) {
     perror("fork");
+    return 1;
   }
 
   if (pid == 0) {
@@ -78,6 +79,7 @@ int exec_subshell_command(subshell_command_t *subshell_command) {
   pid_t pid = fork();
   if (pid == -1) {
     perror("fork");
+    return 1;
   }
 
   if (pid == 0) {
