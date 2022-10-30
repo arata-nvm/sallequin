@@ -15,6 +15,7 @@ typedef enum {
 typedef struct redirects_t {
   redirect_type_t type;
   char *file;
+  int fd;
 } redirect_t;
 
 typedef struct {

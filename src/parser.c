@@ -6,6 +6,12 @@
 token_t *parse_list_command(token_t *cur, command_t *out_command);
 
 token_t *parse_redirect(token_t *cur, redirect_t *out_redirect) {
+  out_redirect->fd = -1;
+  if (cur->type == TOKEN_IONUMBER) {
+    out_redirect->fd = (int) strtol(cur->literal, NULL, 10);
+    cur = cur->next;
+  }
+
   switch (cur->type) {
     case TOKEN_LESS:
       out_redirect->type = REDIRECT_INPUT;

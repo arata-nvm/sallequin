@@ -10,23 +10,23 @@
 
 int exec_redirect(redirect_t *redirect) {
   int fd_from;
-  int fd_to;
+  int fd_to = redirect->fd;
   switch (redirect->type) {
     case REDIRECT_INPUT:
       fd_from = open(redirect->file, O_RDONLY);
-      fd_to = 0;
+      if (fd_to == -1) fd_to = 0;
       break;
     case REDIRECT_OUTPUT:
       fd_from = open(redirect->file, O_CREAT | O_TRUNC | O_WRONLY);
-      fd_to = 1;
+      if (fd_to == -1) fd_to = 1;
       break;
     case REDIRECT_OUTPUT_APPEND:
       fd_from = open(redirect->file, O_CREAT | O_APPEND | O_WRONLY);
-      fd_to = 1;
+      if (fd_to == -1) fd_to = 1;
       break;
     case REDIRECT_INOUT:
       fd_from = open(redirect->file, O_CREAT | O_WRONLY);
-      fd_to = 0;
+      if (fd_to == -1) fd_to = 0;
       break;
   }
 

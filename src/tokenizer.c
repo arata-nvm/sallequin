@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 bool is_word_char(char c) {
   return (
@@ -22,6 +23,14 @@ bool is_word_char(char c) {
       c != '\t' &&
       c != '\n'
   );
+}
+
+bool is_number(char *s) {
+  while (*s) {
+    if (!isnumber(*s)) return false;
+    s++;
+  }
+  return true;
 }
 
 int consume_word(char *s, token_t *out_token) {
@@ -105,6 +114,10 @@ char *next_token(char *s, token_t *out_token) {
     default:
       len = consume_word(s, out_token);
       s += len;
+
+      if ((*s == '<' || *s == '>') && is_number(out_token->literal)) {
+        out_token->type = TOKEN_IONUMBER;
+      }
       return s;
   }
 

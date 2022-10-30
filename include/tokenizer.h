@@ -2,6 +2,7 @@
 
 typedef enum {
   TOKEN_WORD,
+  TOKEN_IONUMBER,
   TOKEN_NEWLINE,
   TOKEN_SEMI,
   TOKEN_AND,
