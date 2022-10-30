@@ -53,6 +53,4 @@ typedef struct command_t {
   } value;
 } command_t;
 
-typedef command_t complete_command_t;
-
-complete_command_t *parse(char *s);
+command_t *parse(char *s);

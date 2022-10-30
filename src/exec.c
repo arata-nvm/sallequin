@@ -173,7 +173,3 @@ int exec_command(command_t *command) {
       return exec_pipeline_command(command->value.pipeline);
   }
 }
-
-int exec(complete_command_t *command) {
-  return exec_command(command);
-}

@@ -21,11 +21,11 @@ void interactive_shell() {
       exit(0);
     }
 
-    complete_command_t *command = parse(command_buf);
+    command_t *command = parse(command_buf);
     if (!command) {
       fprintf(stderr, "parse error\n");
       continue;
     }
-    exec(command);
+    exec_command(command);
   }
 }
