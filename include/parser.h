@@ -5,10 +5,21 @@
 
 struct command_t;
 
+typedef enum {
+  REDIRECT_INPUT,
+} redirect_type_t;
+
+typedef struct redirects_t {
+  redirect_type_t type;
+  char *file;
+} redirect_t;
+
 typedef struct {
   char *file;
   char **args;
   size_t args_len;
+
+  redirect_t *redirect;
 } simple_command_t;
 
 typedef enum {

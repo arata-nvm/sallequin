@@ -10,6 +10,7 @@ typedef enum {
   TOKEN_PAREN_CLOSE,
   TOKEN_BANG,
   TOKEN_PIPE,
+  TOKEN_LESS,
   TOKEN_EOF,
 } tokentype_t;
 

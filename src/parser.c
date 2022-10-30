@@ -24,6 +24,18 @@ token_t *parse_simple_command(token_t *cur, command_t *out_command) {
     cur = cur->next;
   }
 
+  if (cur->type == TOKEN_LESS) {
+    cur = cur->next;
+
+    if (cur->type != TOKEN_WORD) return NULL;
+    char *redirect_file = cur->literal;
+    cur = cur->next;
+
+    out_simple->redirect = calloc(1, sizeof(redirect_t));
+    out_simple->redirect->type = REDIRECT_INPUT;
+    out_simple->redirect->file = redirect_file;
+  }
+
   out_simple->file = file;
   out_simple->args = args;
   out_simple->args_len = args_len;

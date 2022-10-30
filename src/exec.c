@@ -6,6 +6,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/fcntl.h>
+
+int exec_redirect(redirect_t *redirect) {
+  int fd;
+  switch (redirect->type) {
+    case REDIRECT_INPUT:
+      fd = open(redirect->file, O_RDONLY);
+      if (fd == -1) {
+        perror("open");
+        return -1;
+      }
+      if (dup2(fd, 0) == -1) {
+        perror("dup2");
+        return -1;
+      }
+      if (close(fd) == -1) {
+        perror("close");
+        return -1;
+      }
+      break;
+  }
+
+  return 0;
+}
 
 int exec_external_command(simple_command_t *command) {
   pid_t pid = fork();
@@ -15,6 +39,10 @@ int exec_external_command(simple_command_t *command) {
   }
 
   if (pid == 0) {
+    if (command->redirect && exec_redirect(command->redirect) == -1) {
+      exit(1);
+    }
+
     size_t argv_len = command->args_len + 2;
     char **argv = calloc(argv_len, sizeof(char *));
     argv[0] = command->file;
