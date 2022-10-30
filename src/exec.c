@@ -92,17 +92,6 @@ int exec_subshell_command(subshell_command_t *subshell_command) {
   }
 }
 
-int exec_command(command_t *command) {
-  switch (command->type) {
-    case COMMAND_SIMPLE:
-      return exec_simple_command(command->value.simple);
-    case COMMAND_LIST:
-      return exec_list_command(command->value.list);
-    case COMMAND_SUBSHELL:
-      return exec_subshell_command(command->value.subshell);
-  }
-}
-
 int exec_pipeline_inner(pipeline_command_t *pipeline) {
   if (pipeline->next == NULL) return exec_command(pipeline->command);
 
@@ -144,7 +133,7 @@ int exec_pipeline_inner(pipeline_command_t *pipeline) {
   }
 }
 
-int exec_pipeline(pipeline_command_t *pipeline) {
+int exec_pipeline_command(pipeline_command_t *pipeline) {
   pid_t pid = fork();
   if (pid == -1) {
     perror("fork");
@@ -172,6 +161,19 @@ int exec_pipeline(pipeline_command_t *pipeline) {
   return last_exit_code;
 }
 
+int exec_command(command_t *command) {
+  switch (command->type) {
+    case COMMAND_SIMPLE:
+      return exec_simple_command(command->value.simple);
+    case COMMAND_LIST:
+      return exec_list_command(command->value.list);
+    case COMMAND_SUBSHELL:
+      return exec_subshell_command(command->value.subshell);
+    case COMMAND_PIPELINE:
+      return exec_pipeline_command(command->value.pipeline);
+  }
+}
+
 int exec(complete_command_t *command) {
-  return exec_pipeline(command);
+  return exec_command(command);
 }

@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-token_t *parse_command(token_t *cur, command_t *command);
+token_t *parse_list_command(token_t *cur, list_command_t *out_list);
 
 token_t *parse_simple_command(token_t *cur, simple_command_t *out_simple) {
   if (cur->type != TOKEN_WORD) return NULL;
@@ -31,7 +31,10 @@ token_t *parse_subshell_command(token_t *cur, subshell_command_t *out_subshell) 
   cur = cur->next;
 
   out_subshell->command = calloc(1, sizeof(command_t));
-  cur = parse_command(cur, out_subshell->command);
+  out_subshell->command->type = COMMAND_LIST;
+  out_subshell->command->value.list = calloc(1, sizeof(list_command_t));
+  cur = parse_list_command(cur, out_subshell->command->value.list);
+  if (!cur) return NULL;
 
   if (cur->type != TOKEN_PAREN_CLOSE) return NULL;
   cur = cur->next;
@@ -39,71 +42,18 @@ token_t *parse_subshell_command(token_t *cur, subshell_command_t *out_subshell) 
   return cur;
 }
 
-token_t *parse_list_command_inner(token_t *cur, command_t *out_command) {
+token_t *parse_command(token_t *cur, command_t *command) {
   switch (cur->type) {
     case TOKEN_PAREN_OPEN:
-      out_command->type = COMMAND_SUBSHELL;
-      out_command->value.subshell = calloc(1, sizeof(subshell_command_t));
-      return parse_subshell_command(cur, out_command->value.subshell);
+      command->type = COMMAND_SUBSHELL;
+      command->value.subshell = calloc(1, sizeof(subshell_command_t));
+      return parse_subshell_command(cur, command->value.subshell);
     default:
-      out_command->type = COMMAND_SIMPLE;
-      out_command->value.simple = calloc(1, sizeof(simple_command_t));
-      return parse_simple_command(cur, out_command->value.simple);
+      command->type = COMMAND_SIMPLE;
+      command->value.simple = calloc(1, sizeof(simple_command_t));
+      return parse_simple_command(cur, command->value.simple);
   }
 }
-
-token_t *parse_list_command(token_t *cur, list_command_t *out_list) {
-  out_list->command = calloc(1, sizeof(command_t));
-  cur = parse_list_command_inner(cur, out_list->command);
-  if (!cur) return NULL;
-
-  for (;;) {
-    switch (cur->type) {
-      case TOKEN_SEMI:
-        out_list->type = LIST_SEQUENTIAL;
-        break;
-      case TOKEN_AND:
-        out_list->type = LIST_AND;
-        break;
-      case TOKEN_OR:
-        out_list->type = LIST_OR;
-        break;
-      default:
-        return cur;
-    }
-    int token_type = cur->type;
-    cur = cur->next;
-
-    if (cur->type != TOKEN_WORD) {
-      if (token_type == TOKEN_SEMI) break;
-
-      return NULL;
-    }
-
-    out_list->next = calloc(1, sizeof(list_command_t));
-    out_list = out_list->next;
-
-    out_list->command = calloc(1, sizeof(simple_command_t));
-    cur = parse_list_command_inner(cur, out_list->command);
-    if (!cur) return NULL;
-  }
-
-  return cur;
-}
-
-token_t *parse_command(token_t *cur, command_t *out_command) {
-  switch (cur->type) {
-    case TOKEN_PAREN_OPEN:
-      out_command->type = COMMAND_SUBSHELL;
-      out_command->value.subshell = calloc(1, sizeof(subshell_command_t));
-      return parse_subshell_command(cur, out_command->value.subshell);
-    default:
-      out_command->type = COMMAND_LIST;
-      out_command->value.list = calloc(1, sizeof(list_command_t));
-      return parse_list_command(cur, out_command->value.list);
-  }
-}
-
 
 token_t *parse_pipeline_command(token_t *cur, pipeline_command_t *out_pipeline) {
   if (cur->type == TOKEN_BANG) {
@@ -129,12 +79,54 @@ token_t *parse_pipeline_command(token_t *cur, pipeline_command_t *out_pipeline) 
   return cur;
 }
 
+token_t *parse_list_command(token_t *cur, list_command_t *out_list) {
+  out_list->command = calloc(1, sizeof(command_t));
+  out_list->command->type = COMMAND_PIPELINE;
+  out_list->command->value.pipeline = calloc(1, sizeof(pipeline_command_t));
+  cur = parse_pipeline_command(cur, out_list->command->value.pipeline);
+  if (!cur) return NULL;
+
+  for (;;) {
+    switch (cur->type) {
+      case TOKEN_SEMI:
+        out_list->type = LIST_SEQUENTIAL;
+        break;
+      case TOKEN_AND:
+        out_list->type = LIST_AND;
+        break;
+      case TOKEN_OR:
+        out_list->type = LIST_OR;
+        break;
+      default:
+        return cur;
+    }
+    cur = cur->next;
+
+    command_t *command = calloc(1, sizeof(simple_command_t));
+    command->type = COMMAND_PIPELINE;
+    command->value.pipeline = calloc(1, sizeof(pipeline_command_t));
+    token_t *prev_cur = cur;
+    cur = parse_pipeline_command(cur, command->value.pipeline);
+    if (!cur) {
+      free(command->value.pipeline);
+      free(command);
+      return prev_cur;
+    }
+
+    out_list->next = calloc(1, sizeof(list_command_t));
+    out_list = out_list->next;
+    out_list->command = command;
+  }
+}
+
 complete_command_t *parse(char *s) {
   token_t *token = tokenize(s);
 
-  pipeline_command_t *pipeline = calloc(1, sizeof(pipeline_command_t));
-  if (!parse_pipeline_command(token, pipeline)) {
+  command_t *command = calloc(1, sizeof(command_t));
+  command->type = COMMAND_LIST;
+  command->value.list = calloc(1, sizeof(list_command_t));
+  if (!parse_list_command(token, command->value.list)) {
     return NULL;
   }
-  return pipeline;
+  return command;
 }

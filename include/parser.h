@@ -28,10 +28,18 @@ typedef struct {
   struct command_t *command;
 } subshell_command_t;
 
+typedef struct pipeline_command_t {
+  struct command_t *command;
+  bool negate_exit_code;
+
+  struct pipeline_command_t *next;
+} pipeline_command_t;
+
 typedef enum {
   COMMAND_SIMPLE,
   COMMAND_LIST,
   COMMAND_SUBSHELL,
+  COMMAND_PIPELINE,
 } command_type_t;
 
 typedef struct command_t {
@@ -41,16 +49,10 @@ typedef struct command_t {
     simple_command_t *simple;
     list_command_t *list;
     subshell_command_t *subshell;
+    pipeline_command_t *pipeline;
   } value;
 } command_t;
 
-typedef struct pipeline_command_t {
-  struct command_t *command;
-  bool negate_exit_code;
-
-  struct pipeline_command_t *next;
-} pipeline_command_t;
-
-typedef pipeline_command_t complete_command_t;
+typedef command_t complete_command_t;
 
 complete_command_t *parse(char *s);
