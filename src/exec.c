@@ -134,20 +134,24 @@ int exec_pipeline_inner(pipeline_command_t *pipeline) {
 }
 
 int exec_pipeline_command(pipeline_command_t *pipeline) {
-  pid_t pid = fork();
-  if (pid == -1) {
-    perror("fork");
-    return 1;
-  }
-
   int last_exit_code;
-  if (pid == 0) {
-    int exit_code = exec_pipeline_inner(pipeline);
-    exit(exit_code);
+  if (!pipeline->next) {
+    last_exit_code = exec_command(pipeline->command);
   } else {
-    int stat;
-    waitpid(pid, &stat, 0);
-    last_exit_code = WEXITSTATUS(stat);
+    pid_t pid = fork();
+    if (pid == -1) {
+      perror("fork");
+      return 1;
+    }
+
+    if (pid == 0) {
+      int exit_code = exec_pipeline_inner(pipeline);
+      exit(exit_code);
+    } else {
+      int stat;
+      waitpid(pid, &stat, 0);
+      last_exit_code = WEXITSTATUS(stat);
+    }
   }
 
   if (pipeline->negate_exit_code) {
