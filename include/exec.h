@@ -10,4 +10,6 @@ int exec_list_command(list_command_t *list_command);
 
 int exec_command(command_t *command);
 
+int exec_pipeline(pipeline_command_t *pipeline);
+
 int exec(complete_command_t *command);

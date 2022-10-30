@@ -75,9 +75,7 @@ char *next_token(char *s, token_t *out_token) {
         set_token(out_token, TOKEN_OR, "||");
         return s;
       }
-
-      // TODO
-      set_token(out_token, TOKEN_WORD, "|");
+      set_token(out_token, TOKEN_PIPE, "|");
       break;
     case '(':
       set_token(out_token, TOKEN_PAREN_OPEN, "(");

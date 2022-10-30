@@ -9,6 +9,7 @@ typedef enum {
   TOKEN_PAREN_OPEN,
   TOKEN_PAREN_CLOSE,
   TOKEN_BANG,
+  TOKEN_PIPE,
   TOKEN_EOF,
 } tokentype_t;
 

@@ -47,14 +47,6 @@ int exec_simple_command(simple_command_t *simple_command) {
     exit_code = exec_external_command(simple_command);
   }
 
-  if (simple_command->negate_exit_code) {
-    if (exit_code == 0) {
-      exit_code = 1;
-    } else {
-      exit_code = 0;
-    }
-  }
-
   return exit_code;
 }
 
@@ -109,6 +101,76 @@ int exec_command(command_t *command) {
   }
 }
 
+int exec_pipeline_inner(pipeline_command_t *pipeline) {
+  if (pipeline->next == NULL) return exec_command(pipeline->command);
+
+  int pipefd[2];
+  if (pipe(pipefd) == -1) {
+    perror("pipe");
+    return 1;
+  }
+
+  pid_t pid = fork();
+  if (pid == -1) {
+    perror("fork");
+    return 1;
+  }
+
+  if (pid == 0) {
+    if (dup2(pipefd[1], 1) == -1) {
+      perror("dup2");
+      exit(1);
+    }
+    if (close(pipefd[0]) == -1 || close(pipefd[1]) == -1) {
+      perror("close");
+      exit(1);
+    }
+
+    int exit_code = exec_command(pipeline->command);
+    exit(exit_code);
+  } else {
+    if (dup2(pipefd[0], 0) == -1) {
+      perror("dup2");
+      return 1;
+    }
+    if (close(pipefd[0]) == -1 || close(pipefd[1]) == -1) {
+      perror("close");
+      return 1;
+    }
+
+    int exit_code = exec_command(pipeline->next->command);
+    return exit_code;
+  }
+}
+
+int exec_pipeline(pipeline_command_t *pipeline) {
+  pid_t pid = fork();
+  if (pid == -1) {
+    perror("fork");
+    return 1;
+  }
+
+  int last_exit_code;
+  if (pid == 0) {
+    int exit_code = exec_pipeline_inner(pipeline);
+    exit(exit_code);
+  } else {
+    int stat;
+    waitpid(pid, &stat, 0);
+    last_exit_code = WEXITSTATUS(stat);
+  }
+
+  if (pipeline->negate_exit_code) {
+    if (last_exit_code == 0) {
+      last_exit_code = 1;
+    } else {
+      last_exit_code = 0;
+    }
+  }
+
+  return last_exit_code;
+}
+
 int exec(complete_command_t *command) {
-  return exec_command(command);
+  return exec_pipeline(command);
 }

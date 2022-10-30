@@ -6,11 +6,6 @@
 token_t *parse_command(token_t *cur, command_t *command);
 
 token_t *parse_simple_command(token_t *cur, simple_command_t *out_simple) {
-  if (cur->type == TOKEN_BANG) {
-    out_simple->negate_exit_code = true;
-    cur = cur->next;
-  }
-
   if (cur->type != TOKEN_WORD) return NULL;
   char *file = cur->literal;
 
@@ -109,14 +104,37 @@ token_t *parse_command(token_t *cur, command_t *out_command) {
   }
 }
 
+
+token_t *parse_pipeline_command(token_t *cur, pipeline_command_t *out_pipeline) {
+  if (cur->type == TOKEN_BANG) {
+    out_pipeline->negate_exit_code = true;
+    cur = cur->next;
+  }
+
+  out_pipeline->command = calloc(1, sizeof(command_t));
+  cur = parse_command(cur, out_pipeline->command);
+  if (!cur) return NULL;
+
+  while (cur->type == TOKEN_PIPE) {
+    cur = cur->next;
+
+    out_pipeline->next = calloc(1, sizeof(pipeline_command_t));
+    out_pipeline = out_pipeline->next;
+
+    out_pipeline->command = calloc(1, sizeof(command_t));
+    cur = parse_command(cur, out_pipeline->command);
+    if (!cur) return NULL;
+  }
+
+  return cur;
+}
+
 complete_command_t *parse(char *s) {
   token_t *token = tokenize(s);
 
-  command_t *command = calloc(1, sizeof(command_t));
-  command->type = COMMAND_LIST;
-  command->value.list = calloc(1, sizeof(list_command_t));
-  if (!parse_list_command(token, command->value.list)) {
+  pipeline_command_t *pipeline = calloc(1, sizeof(pipeline_command_t));
+  if (!parse_pipeline_command(token, pipeline)) {
     return NULL;
   }
-  return command;
+  return pipeline;
 }

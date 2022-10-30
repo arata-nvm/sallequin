@@ -9,8 +9,6 @@ typedef struct {
   char *file;
   char **args;
   size_t args_len;
-
-  bool negate_exit_code;
 } simple_command_t;
 
 typedef enum {
@@ -46,6 +44,13 @@ typedef struct command_t {
   } value;
 } command_t;
 
-typedef command_t complete_command_t;
+typedef struct pipeline_command_t {
+  struct command_t *command;
+  bool negate_exit_code;
+
+  struct pipeline_command_t *next;
+} pipeline_command_t;
+
+typedef pipeline_command_t complete_command_t;
 
 complete_command_t *parse(char *s);
