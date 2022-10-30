@@ -7,6 +7,9 @@ struct command_t;
 
 typedef enum {
   REDIRECT_INPUT,
+  REDIRECT_OUTPUT,
+  REDIRECT_OUTPUT_APPEND,
+  REDIRECT_INOUT,
 } redirect_type_t;
 
 typedef struct redirects_t {

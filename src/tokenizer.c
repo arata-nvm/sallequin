@@ -87,7 +87,20 @@ char *next_token(char *s, token_t *out_token) {
       set_token(out_token, TOKEN_BANG, "!");
       break;
     case '<':
+      if (*(s + 1) == '>') {
+        s += 2;
+        set_token(out_token, TOKEN_LESSGREAT, "<>");
+        return s;
+      }
       set_token(out_token, TOKEN_LESS, "<");
+      break;
+    case '>':
+      if (*(s + 1) == '>') {
+        s += 2;
+        set_token(out_token, TOKEN_DGREAT, ">>");
+        return s;
+      }
+      set_token(out_token, TOKEN_GREAT, ">");
       break;
     default:
       len = consume_word(s, out_token);

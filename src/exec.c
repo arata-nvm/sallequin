@@ -9,23 +9,38 @@
 #include <sys/fcntl.h>
 
 int exec_redirect(redirect_t *redirect) {
-  int fd;
+  int fd_from;
+  int fd_to;
   switch (redirect->type) {
     case REDIRECT_INPUT:
-      fd = open(redirect->file, O_RDONLY);
-      if (fd == -1) {
-        perror("open");
-        return -1;
-      }
-      if (dup2(fd, 0) == -1) {
-        perror("dup2");
-        return -1;
-      }
-      if (close(fd) == -1) {
-        perror("close");
-        return -1;
-      }
+      fd_from = open(redirect->file, O_RDONLY);
+      fd_to = 0;
       break;
+    case REDIRECT_OUTPUT:
+      fd_from = open(redirect->file, O_CREAT | O_TRUNC | O_WRONLY);
+      fd_to = 1;
+      break;
+    case REDIRECT_OUTPUT_APPEND:
+      fd_from = open(redirect->file, O_CREAT | O_APPEND | O_WRONLY);
+      fd_to = 1;
+      break;
+    case REDIRECT_INOUT:
+      fd_from = open(redirect->file, O_CREAT | O_WRONLY);
+      fd_to = 0;
+      break;
+  }
+
+  if (fd_from == -1) {
+    perror("open");
+    return -1;
+  }
+  if (dup2(fd_from, fd_to) == -1) {
+    perror("dup2");
+    return -1;
+  }
+  if (close(fd_from) == -1) {
+    perror("close");
+    return -1;
   }
 
   return 0;

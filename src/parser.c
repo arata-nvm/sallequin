@@ -5,6 +5,32 @@
 
 token_t *parse_list_command(token_t *cur, command_t *out_command);
 
+token_t *parse_redirect(token_t *cur, redirect_t *out_redirect) {
+  switch (cur->type) {
+    case TOKEN_LESS:
+      out_redirect->type = REDIRECT_INPUT;
+      break;
+    case TOKEN_GREAT:
+      out_redirect->type = REDIRECT_OUTPUT;
+      break;
+    case TOKEN_DGREAT:
+      out_redirect->type = REDIRECT_OUTPUT_APPEND;
+      break;
+    case TOKEN_LESSGREAT:
+      out_redirect->type = REDIRECT_INOUT;
+      break;
+    default:
+      return NULL;
+  }
+  cur = cur->next;
+
+  if (cur->type != TOKEN_WORD) return NULL;
+  out_redirect->file = cur->literal;
+  cur = cur->next;
+
+  return cur;
+}
+
 token_t *parse_simple_command(token_t *cur, command_t *out_command) {
   out_command->type = COMMAND_SIMPLE;
   out_command->value.simple = calloc(1, sizeof(simple_command_t));
@@ -24,21 +50,16 @@ token_t *parse_simple_command(token_t *cur, command_t *out_command) {
     cur = cur->next;
   }
 
-  if (cur->type == TOKEN_LESS) {
-    cur = cur->next;
-
-    if (cur->type != TOKEN_WORD) return NULL;
-    char *redirect_file = cur->literal;
-    cur = cur->next;
-
-    out_simple->redirect = calloc(1, sizeof(redirect_t));
-    out_simple->redirect->type = REDIRECT_INPUT;
-    out_simple->redirect->file = redirect_file;
-  }
-
   out_simple->file = file;
   out_simple->args = args;
   out_simple->args_len = args_len;
+
+  token_t *prev_cur = cur;
+  redirect_t *redirect = calloc(1, sizeof(redirect_t));
+  cur = parse_redirect(cur, redirect);
+  if (!cur) return prev_cur;
+  out_simple->redirect = redirect;
+
   return cur;
 }
 
