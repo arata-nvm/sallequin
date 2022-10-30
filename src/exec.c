@@ -140,8 +140,7 @@ int exec_pipeline_inner(pipeline_command_t *pipeline) {
       return 1;
     }
 
-    int exit_code = exec_command(pipeline->next->command);
-    return exit_code;
+    return exec_pipeline_inner(pipeline->next);
   }
 }
 
