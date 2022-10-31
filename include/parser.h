@@ -10,12 +10,15 @@ typedef enum {
   REDIRECT_OUTPUT,
   REDIRECT_OUTPUT_APPEND,
   REDIRECT_INOUT,
+  REDIRECT_INPUT_DUP,
+  REDIRECT_OUTPUT_DUP,
 } redirect_type_t;
 
 typedef struct redirects_t {
   redirect_type_t type;
   char *file;
   int fd;
+  int fd_dup;
 } redirect_t;
 
 typedef struct {

@@ -28,6 +28,16 @@ int exec_redirect(redirect_t *redirect) {
       fd_from = open(redirect->file, O_CREAT | O_WRONLY);
       if (fd_to == -1) fd_to = 0;
       break;
+    case REDIRECT_INPUT_DUP:
+      fd_from = redirect->fd_dup;
+      if (fd_to == -1) fd_to = 0;
+      break;
+    case REDIRECT_OUTPUT_DUP:
+      fd_from = redirect->fd_dup;
+      if (fd_to == -1) fd_to = 1;
+      break;
+    default:
+      return -1;
   }
 
   if (fd_from == -1) {
@@ -38,7 +48,9 @@ int exec_redirect(redirect_t *redirect) {
     perror("dup2");
     return -1;
   }
-  if (close(fd_from) == -1) {
+
+  bool need_close = redirect->type != REDIRECT_INPUT_DUP && redirect->type != REDIRECT_OUTPUT_DUP;
+  if (need_close && close(fd_from) == -1) {
     perror("close");
     return -1;
   }

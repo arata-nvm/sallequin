@@ -25,13 +25,27 @@ token_t *parse_redirect(token_t *cur, redirect_t *out_redirect) {
     case TOKEN_LESSGREAT:
       out_redirect->type = REDIRECT_INOUT;
       break;
+    case TOKEN_LESSAND:
+      out_redirect->type = REDIRECT_INPUT_DUP;
+      break;
+    case TOKEN_GREATAND:
+      out_redirect->type = REDIRECT_OUTPUT_DUP;
+      break;
     default:
       return NULL;
   }
   cur = cur->next;
 
   if (cur->type != TOKEN_WORD) return NULL;
-  out_redirect->file = cur->literal;
+  bool is_dup_op = out_redirect->type == REDIRECT_INPUT_DUP || out_redirect->type == REDIRECT_OUTPUT_DUP;
+  if (is_dup_op) {
+    char *endptr;
+    int fd_dup = (int) strtol(cur->literal, &endptr, 10);
+    if (*endptr != '\0') return NULL;
+    out_redirect->fd_dup = fd_dup;
+  } else {
+    out_redirect->file = cur->literal;
+  }
   cur = cur->next;
 
   return cur;

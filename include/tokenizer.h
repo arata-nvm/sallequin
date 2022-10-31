@@ -15,6 +15,8 @@ typedef enum {
   TOKEN_GREAT,
   TOKEN_DGREAT,
   TOKEN_LESSGREAT,
+  TOKEN_LESSAND,
+  TOKEN_GREATAND,
   TOKEN_EOF,
 } tokentype_t;
 

@@ -100,6 +100,10 @@ char *next_token(char *s, token_t *out_token) {
         s += 2;
         set_token(out_token, TOKEN_LESSGREAT, "<>");
         return s;
+      } else if (*(s + 1) == '&') {
+        s += 2;
+        set_token(out_token, TOKEN_LESSAND, "<&");
+        return s;
       }
       set_token(out_token, TOKEN_LESS, "<");
       break;
@@ -107,6 +111,10 @@ char *next_token(char *s, token_t *out_token) {
       if (*(s + 1) == '>') {
         s += 2;
         set_token(out_token, TOKEN_DGREAT, ">>");
+        return s;
+      } else if (*(s + 1) == '&') {
+        s += 2;
+        set_token(out_token, TOKEN_GREATAND, ">&");
         return s;
       }
       set_token(out_token, TOKEN_GREAT, ">");
